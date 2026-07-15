@@ -1,0 +1,25 @@
+{
+  "name": "Gaboo IPTV Scanner",
+  "short_name": "Gaboo Scan",
+  "description": "Escáner de IPTV - Gaboo IPTV Scanner",
+  "start_url": "/gabo_favor/",
+  "scope": "/gabo_favor/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1117",
+  "theme_color": "#0f1117",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

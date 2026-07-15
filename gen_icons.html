@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head><title>Generar Iconos</title></head>
+<body>
+<script>
+async function gen() {
+  const res = await fetch('imagen_2026-07-15_001254054.svg');
+  const svg = await res.text();
+  const blob = new Blob([svg], {type: 'image/svg+xml'});
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
+
+  for (const size of [192, 512]) {
+    const c = document.createElement('canvas');
+    c.width = size; c.height = size;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#0f1117';
+    ctx.fillRect(0, 0, size, size);
+    ctx.drawImage(img, 0, 0, size, size);
+    const link = document.createElement('a');
+    link.download = 'icon-' + size + '.png';
+    link.href = c.toDataURL('image/png');
+    link.click();
+  }
+  document.body.textContent = 'Iconos generados! Revisa tus descargas.';
+}
+gen();
+</script>
+<button onclick="gen()">Generar Iconos</button>
+</body>
+</html>
